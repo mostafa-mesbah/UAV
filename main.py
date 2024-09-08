@@ -7,9 +7,11 @@ from modules.uav import uav
 import json
 
 
-config_file= '/home/mesbah/mesbah/roben/codes/files/data.json'
+config_file= 'C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/data.json'
 converter = WaypointsConverter(config_file)
 converter.convert()
+
+
 
 try:
     with open(config_file ,'r') as f:
@@ -28,7 +30,7 @@ except Exception as e:
 print("choose the way of comunication :")
 print("connection 1 is '127.0.0.1:14550' for local host")
 print("connection 2 is 'cocowawa' for raspery pi")
-connection_string1 = '127.0.0.1:14550'
+connection_string1 = '172.30.64.1:14550'
 connection_string2 = config_data["raspery_pi_connection_strning"]
 the_choice = input("Enter connection number.....  \n")
 if the_choice == '1':
@@ -37,7 +39,8 @@ elif the_choice == '2':
         master = mavutil.mavlink_connection(connection_string2)
 master.wait_heartbeat()
 print("Heartbeat from system (system %u component %u)" % (master.target_system, master.target_component))
-
+my_uav = uav(master,config_data["waypoints_file_csv"] ,config_data["fence_file_csv"] ,config_data["payload_file_csv"],config_file)
+my_uav.upload_fence()
 print("choose the mission you want :")
 print("enter '1' for mission 1 'payload mission' ")
 print("enter '2' for mission 2 'suravy mission' ")
@@ -51,5 +54,4 @@ elif the_mission_index == '2':
 elif the_mission_index == '3':
       mission3()
 
-my_uav = uav(master,config_data["waypoints_file_csv"] ,config_data["fence_file_csv"] ,config_data["payload_file_csv"],config_file)
-my_uav.upload_fence()
+

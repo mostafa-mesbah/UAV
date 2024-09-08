@@ -1,13 +1,13 @@
 {
-    "waypoints_file_waypoint":"/home/mesbah/mesbah/roben/codes/files/mission1.waypoints",
-    "waypoints_file_csv":"/home/mesbah/mesbah/roben/codes/files/waypoints.csv",
-    "fence_file_waypoint": "/home/mesbah/mesbah/roben/codes/files/fence.waypoints",
-    "fence_file_csv":"/home/mesbah/mesbah/roben/codes/files/fence.csv",
-    "payload_file_waypoint": "/home/mesbah/mesbah/roben/codes/files/payload.waypoints",
-    "payload_file_csv":"/home/mesbah/mesbah/roben/codes/files/payload.csv",
-    "network_ips_csv":"/home/mesbah/mesbah/roben/codes/files/network_ips.csv",
+    "waypoints_file_waypoint":"C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/mission1.waypoints",
+    "waypoints_file_csv":"C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/waypoints.csv",
+    "fence_file_waypoint": "C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/fence.waypoints",
+    "fence_file_csv":"C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/fence.csv",
+    "payload_file_waypoint": "C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/payload.waypoints",
+    "payload_file_csv":"C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/payload.csv",
+    "network_ips_csv":"C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/network_ips.csv",
     "home_lat":29.8146013,
     "home_long":30.8256198,
     "ip_range" :"192.168.1.1/24",
-    "raspery_pi_connection_strning":""
+    "raspery_pi_connection_strning":"coco"
 }
