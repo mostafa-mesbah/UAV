@@ -1,5 +1,7 @@
-import csv
-from pymavlink import mavutil
-import time
-def mission1(master,waypoints_file) :
-    pass
+import pymavlink.mavutil as utility
+import pymavlink.dialects.v20.all as dialect
+
+def mission1(my_uav):
+    my_uav.clear_mission()    
+    my_uav.add_mission_waypoints()
+    my_uav.upload_missions()

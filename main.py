@@ -1,11 +1,10 @@
-from pymavlink import mavutil
+from pymavlink import mavutil,mavwp
 from modules.txt_csv import WaypointsConverter
 from modules.mission1 import mission1
 from modules.mission2 import mission2
 from modules.mission3 import mission3
 from modules.uav import uav
 import json
-
 
 config_file= 'C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/data.json'
 converter = WaypointsConverter(config_file)
@@ -48,7 +47,7 @@ print("enter '3' for mission 3 'indurance' ")
 the_mission_index = input("Enter mission number.....  \n")
 
 if the_mission_index == '1':
-      mission1()
+      mission1(my_uav)
 elif the_mission_index == '2':
       mission2()
 elif the_mission_index == '3':

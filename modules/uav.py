@@ -3,6 +3,7 @@ import pymavlink.mavutil as utility
 import pymavlink.dialects.v20.all as dialect
 import csv
 import json
+from pymavlink import mavutil, mavwp
 
 class uav :
     def __init__(self,vehicle,waypoints_file,fence_file,payload_file,config_file) -> None:
@@ -11,6 +12,7 @@ class uav :
         self.payload_file = payload_file
         self.vehicle = vehicle
         self.config_file = config_file
+        self.wp = mavwp.MAVWPLoader()   
 
 
     # fence upload function    
@@ -300,12 +302,130 @@ class uav :
         self.vehicle.mav.send(message)
 
 
+    def clear_mission(self):
+        message = dialect.MAVLink_mission_request_list_message(target_system=self.vehicle.target_system,
+                                                       target_component=self.vehicle.target_component,
+                                                       mission_type=dialect.MAV_MISSION_TYPE_MISSION)
+    
+
+
+        self.vehicle.mav.send(message)
+
+        message = self.vehicle.recv_match(type=dialect.MAVLink_mission_count_message.msgname,blocking=True)
+
+        message = message.to_dict()
+
+        count = message["count"]
+        print("Total mission item count befor:", count)
+
+            # create mission clear all message
+        message = dialect.MAVLink_mission_clear_all_message(target_system=self.vehicle.target_system,
+                                                            target_component=self.vehicle.target_component,
+                                                            mission_type=dialect.MAV_MISSION_TYPE_MISSION)
+
+        # send mission clear all command to the master
+        self.vehicle.mav.send(message)
+
+        # create mission request list message
+        message = dialect.MAVLink_mission_request_list_message(target_system=self.vehicle.target_system,
+                                                            target_component=self.vehicle.target_component,
+                                                            mission_type=dialect.MAV_MISSION_TYPE_MISSION)
+
+        # send the message to the master
+        self.vehicle.mav.send(message)
+
+        # wait mission count message
+        message = self.vehicle.recv_match(type=dialect.MAVLink_mission_count_message.msgname,
+                                    blocking=True)
+
+        # convert this message to dictionary
+        message = message.to_dict()
+
+        # get the mission item count
+        count = message["count"]
+        print("Total mission item count now:", count)
+
+
+    def takeoff_sequence(self):
+        try:
+            with open(self.config_file, 'r') as f:
+                # Load JSON data
+                config_data = json.load(f)
+        except FileNotFoundError:
+            print(f"JSON file '{self.config_file}' not found.")
+            return
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            return
+        except KeyError as e:
+            print(f"KeyError: Missing key {e}")
+            return
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return
+
+        # Add the return point
+        takeoff_alt = config_data["take_off_alt"]
+        home_lat = config_data["home_lat"]
+        home_long = config_data["home_long"]
+        self.wp.add(mavutil.mavlink.MAVLink_mission_item_message(
+            1,  # sys id
+            0,  # component id
+            0,  # seq (waypoint ID)
+            16,  # frame id (global relative altitude)
+            mavutil.mavlink.MAV_CMD_NAV_TAKEOFF ,  # mav_cmd (waypoint command)
+            0,  # current (false)
+            0,  # auto continue (false)
+            0, 0, 0, 0,  # params 1-4: hold time (s), acceptable radius (m), pass/orbit, yaw angle
+            home_lat, home_long, takeoff_alt  # lat/lon/alt
+        ))
+
         
+    def add_mission_waypoints(self):
+        waypoint_list = []
 
+        try:
+            with open(self.waypointfile, mode='r') as file:
 
+                csv_reader = csv.reader(file)
 
+                lines = list(csv_reader)
 
-
-    def upload_waypoints(self):
-        pass
+                # Iterate over the rows and append lat, long to the coordinates list
+                for i, row in enumerate(lines[1:]):
+                    lat, long, alt = float(row[0]), float(row[1]),float(row[2])
+                    waypoint_list.append([lat, long, alt]) 
+        except FileNotFoundError:
+             print(f"CSV file '{self.waypointfile}' not found.")
+             return
+        except Exception as e:
+             print(f"An error occurred while reading the CSV file: {e}")
+             return
         
+        
+        for i in range(len(waypoint_list)):
+            lat, long, alt = waypoint_list[i]
+            self.wp.add(mavutil.mavlink.MAVLink_mission_item_message(
+            1,  # sys id
+            0,  # component id
+            0,  # seq (waypoint ID)
+            16,  # frame id (global relative altitude)
+            mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,  # mav_cmd (waypoint command)
+            0,  # current (false)
+            1,  # auto continue (false)
+            0, 0, 0, 0,  # params 1-4: hold time (s), acceptable radius (m), pass/orbit, yaw angle
+            lat, long, alt  # lat/lon/alt
+        ))
+        
+            
+    def upload_missions(self):
+        self.vehicle.waypoint_clear_all_send()
+        self.vehicle.waypoint_count_send(self.wp.count())
+
+        for _ in range(self.wp.count()):
+            msg = self.vehicle.recv_match(type='MISSION_REQUEST', blocking=True)
+            self.vehicle.mav.send(self.wp.wp(msg.seq))
+            print(_)
+
+
+    

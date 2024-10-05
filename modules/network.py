@@ -24,7 +24,7 @@ ip_range = "192.168.1.1/24"
 ips = get_network_ips(ip_range)
 
 # Print the IPs to a CSV file named "network_ips.csv"
-with open("/home/mesbah/mesbah/roben/codes/files/network_ips.csv", mode='w', newline='') as file:
+with open("C:/Users/Mostafa/my shit/ROBEN/codes/pymavlink/UAV/files/network_ips.csv", mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(["IP Address"])  # Write the header
     for ip in ips:
